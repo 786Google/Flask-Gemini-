@@ -1,23 +1,19 @@
+
+
 import os
 from flask import Flask, render_template
 from flask_socketio import SocketIO
 from dotenv import load_dotenv
 import google.generativeai as genai
-import eventlet
 
-# Load environment variables from .env file
 load_dotenv()
 
-# Create Flask application instance
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'YOUR_SECRET_KEY')  # Replace with a strong secret key
+app.config['SECRET_KEY'] = 'YOUR_SECRET_KEY'  # Replace with a strong secret key
+socketio = SocketIO(app)
 
-# Initialize SocketIO with eventlet as the async mode
-socketio = SocketIO(app, async_mode='eventlet')
-
-# Configure Google Generative AI
 genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
-model = genai.GenerativeModel(model_name="gemini-pro")
+model = genai.GenerativeModel(model_name="gemini-pro") 
 chat_session = model.start_chat()
 
 @app.route('/')
@@ -37,7 +33,7 @@ def handle_message(data):
         "top_p": top_p,
         "top_k": top_k,
         "max_output_tokens": max_output_tokens,
-        "response_mime_type": "text/plain",
+        "response_mime_type": "text/plain", 
     }
     chat_session.generation_config = generation_config
 
@@ -49,6 +45,5 @@ def handle_message(data):
     socketio.emit('response', {'complete': True})
 
 if __name__ == '__main__':
-    # Run the app using SocketIO
     socketio.run(app, debug=True)
-
+    
